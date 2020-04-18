@@ -1,0 +1,59 @@
+version: "3"
+services:
+  postgres:
+    image: "postgres:9.6"
+    container_name: "postgres"
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - airflow-postgres-data:/var/lib/postgresql/data
+  # uncomment initdb if you need initdb at first run
+  initdb:
+    build: ""
+    entrypoint: airflow initdb
+    depends_on:
+     - postgres
+  webserver:
+    build: ""
+    restart: always
+    depends_on:
+      - postgres
+      - initdb
+    volumes:
+      - ../accidents_dend_capstone/airflow/dags:/usr/local/airflow/dags
+      - ../accidents_dend_capstone/airflow/plugins:/usr/local/airflow/plugins
+      - ../accidents_dend_capstone/spark_etl:/usr/local/airflow/spark_etl
+      - ./airflow-logs:/usr/local/airflow/logs
+    ports:
+      - "8080:8080"
+    entrypoint: airflow webserver
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+  scheduler:
+    build: ""
+    restart: always
+    depends_on:
+      - postgres
+      - webserver
+    volumes:
+      - ../accidents_dend_capstone/airflow/dags:/usr/local/airflow/dags
+      - ../accidents_dend_capstone/airflow/plugins:/usr/local/airflow/plugins
+      - ../accidents_dend_capstone/spark_etl:/usr/local/airflow/spark_etl
+      - ../data:/usr/local/airflow/data
+      - ./airflow-logs:/usr/local/airflow/logs
+    entrypoint: airflow scheduler
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-scheduler.pid ]"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+volumes:
+  airflow-postgres-data:
