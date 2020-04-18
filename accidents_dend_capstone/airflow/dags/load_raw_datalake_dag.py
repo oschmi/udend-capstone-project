@@ -51,11 +51,7 @@ check_accidents_data_quality = DataQualityOperator(
     bucket_name=DefaultSettings.raw_data_lake_bucket,
     aws_connection_id="aws_credentials",
     prefix="accidents",
-<<<<<<< HEAD
     expected_count=298,
-=======
-    expected_count=1,
->>>>>>> refs/rewritten/master
     dag=dag
 )
 
