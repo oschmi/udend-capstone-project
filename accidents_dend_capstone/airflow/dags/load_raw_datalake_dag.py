@@ -22,7 +22,7 @@ dag = DAG("load_files_into_raw_data_lake",
 start_operator = DummyOperator(task_id='Begin_execution', dag=dag)
 
 create_raw_datalake = CreateS3BucketOperator(
-    task_id="create_raw_datalake",
+    task_id="Create_raw_datalake",
     bucket_name=DefaultSettings.raw_data_lake_bucket,
     aws_connection_id="aws_credentials",
     region_name="eu-central-1",
