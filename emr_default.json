@@ -1,0 +1,46 @@
+{
+  "Name": "spark-emr-cluster",
+  "LogUri": "s3://aws-logs-228141572992-eu-central-1/elasticmapreduce",
+  "ReleaseLabel": "emr-6.0.0",
+  "Applications": [
+    {
+      "Name": "Spark"
+    }
+  ],
+  "Configurations": [
+    {
+      "Classification": "spark-env",
+      "Configurations": [
+        {
+          "Classification": "export",
+          "Properties": {
+            "PYSPARK_PYTHON": "/usr/bin/python3"
+          }
+        }
+      ]
+    }
+  ],
+  "Instances": {
+    "InstanceGroups": [
+      {
+        "Name": "Master nodes",
+        "Market": "ON_DEMAND",
+        "InstanceRole": "MASTER",
+        "InstanceType": "m5.xlarge",
+        "InstanceCount": 1
+      },
+      {
+        "Name": "Slave nodes",
+        "Market": "ON_DEMAND",
+        "InstanceRole": "CORE",
+        "InstanceType": "m5.xlarge",
+        "InstanceCount": 2
+      }
+    ],
+    "KeepJobFlowAliveWhenNoSteps": false,
+    "TerminationProtected": false
+  },
+  "VisibleToAllUsers": true,
+  "JobFlowRole": "EMR_EC2_DefaultRole",
+  "ServiceRole": "EMR_DefaultRole"
+}

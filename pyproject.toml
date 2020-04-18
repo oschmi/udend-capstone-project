@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "accidents-dend-capstone"
+version = "0.1.0"
+description = "Accident Analytics - DE/ND Capstone Project"
+authors = ["oschmi"]
+
+[tool.poetry.dependencies]
+python = "^3.6.1"
+apache-airflow = "^1.10.9"
+pyspark = "^2.4.5"
+pytest-mock = "^3.0.0"
+boto3 = "^1.12.35"
+psycopg2 = "^2.8.4"
+pandas = ">=0.25.3"
+click = "^7.1.1"
+toml = "^0.10.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[tool.poetry.scripts]
+prepare-accidents = "accidents_dend_capstone.utils.split_accidents:split"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[AWS]
+AWS_ACCESS_KEY_ID = "a"
+AWS_SECRET_ACCESS_KEY  = "b"
+
+[S3]
+RAW_DATALAKE_BUCKET = "oschmi_udent_raw_lake"
+ANALYTICS_DATALAKE_BUCKET = "oschmi_udent_analytics_lake"
+
+[LOCAL]
+INPUT_DATA_DIR = "data/"
+OUTPUT_DATA_DIR = "data/out"
