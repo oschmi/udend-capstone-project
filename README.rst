@@ -120,6 +120,14 @@ Dimension tables
     - wind_direction; string; shows the wind_direction
     - airport_code; string; airport code of the nearest weather station
 
+Use Cases
+--------------------------------------------------------------------
+
+The optimized data lake serves multiple purposes. The data lake provides different ways of accessing and analyzing our data.
+
+Possible use cases are:
+- Run analytics queries (SQL) against the data lake by using Amazon Athena or Apache Spark or load data into Redshift.
+- Use an intermediate database to access the lake and present your queries in a dashboard or on a website.
 
 S3 Structure
 ------------------------
@@ -166,24 +174,122 @@ Prerequisites
 
 - Docker
 - `Poetry <https://python-poetry.org/>`_
+- AWS Account with EMR and S3 Roles
 
-Project Structure
+Project Instructions
 ===================================================
 
+1. Clone this project:
+.. code-block:: raw
 
-AWS
-======================================================
+    https://github.com/oschmi/udend-capstone-project
+
+2. Create a local dev environment, e.g. with poetry (a requirements.txt is also included):
+.. code-block:: raw
+
+    poetry install
+
+3. Split accidents data:
+.. code-block:: raw
+
+    poetry run prepare-accidents
+
+4. Start Airflow:
+.. code-block:: raw
+
+    cd docker
+    docker-compose up
+
+5. After setting up Airflow, you can run the DAGs. (First load data into raw data lake)
 
 
 Airflow
 ======================================================
 
+You need to configure Airflow to successfully run the DAGs.
 
-Usage
-======================================================
+1. Go to Admin/Connections
+2. Create the connection id `aws_credentials` and provide a region in the extras area. This is important, as EMR relies on this region.
+
+.. code-block:: json
+
+    {
+       "region_name": "eu-central-1"
+    }
+
+3. Edit `emr_default` with your emr setup. An example configuration is provided in emr_default.json or here:
+
+.. code-block:: json
+
+    {
+      "Name": "spark-emr-cluster",
+      "LogUri": "s3://aws-logs-228141572992-eu-central-1/elasticmapreduce",
+      "ReleaseLabel": "emr-6.0.0",
+      "Applications": [
+        {
+          "Name": "Spark"
+        }
+      ],
+      "Configurations": [
+        {
+          "Classification": "spark-env",
+          "Configurations": [
+            {
+              "Classification": "export",
+              "Properties": {
+                "PYSPARK_PYTHON": "/usr/bin/python3"
+              }
+            }
+          ]
+        }
+      ],
+      "Instances": {
+        "InstanceGroups": [
+          {
+            "Name": "Master nodes",
+            "Market": "ON_DEMAND",
+            "InstanceRole": "MASTER",
+            "InstanceType": "m5.xlarge",
+            "InstanceCount": 1
+          },
+          {
+            "Name": "Slave nodes",
+            "Market": "ON_DEMAND",
+            "InstanceRole": "CORE",
+            "InstanceType": "m5.xlarge",
+            "InstanceCount": 2
+          }
+        ],
+        "KeepJobFlowAliveWhenNoSteps": false,
+        "TerminationProtected": false
+      },
+      "VisibleToAllUsers": true,
+      "JobFlowRole": "EMR_EC2_DefaultRole",
+      "ServiceRole": "EMR_DefaultRole"
+    }
+
 
 
 **********************************************************
-Project Discussion
+Addressing Other Scenarios
 **********************************************************
+
+1) If the data was increased by 100x.
+    - The accidents dataset contains roughly 3 million rows and has a total size of ~ 1GB.
+    - If it was increast by 100x it would have 300 million rows with 100GB total.
+
+   Implications on our technology stack:
+    - Currently we start airflow through docker with mounted volumes. While 100GB are currently are not a problem for an SSD/HDD concerning size, it need 100x more time to upload the data to s3. A better solution could be to directly download data from a source through an s3 command or spilt the data on multiple machines and workers, so they can work and upload from different locations in parallel.
+    - Our EMR-Cluster can be adjusted by simply adding more machines to our cluster.
+    - The increase could affect analytics if the analyst does not use a columnar database like redshift. In this case we can simply add more machines and storage as well, since our format is optimized.
+    - Cost significantly increases (times 100x). That should not be a problem if your business grows in a similar fashion ;)
+
+2) The pipelines would be run on a daily basis by 7 am every day.
+    - We can schedule our Airflow pipelines so that they follow this pattern.
+    - Airflow will store useful statistics we can (hopefully) easily spot faults in the pipeline.
+    - This will only be a problem, if our Spark-Jobs take more than 24 hours,
+
+3) The database needed to be accessed by 100+ people.
+    - This depends on the database used to analyse our optimized data lake. Considering we use Athena, it is no problem in general, because it is serverless. However we have to ensure the usage of our data lake is economically.
+    - If we have more than 100 people we should probably add a further step to our pipeline to directly copy our data lake to redshift, since it will get accessed much more frequently and maybe at the same time, which discourages a serverless approach (for Athena).
 
