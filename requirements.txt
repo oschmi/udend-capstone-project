@@ -91,7 +91,7 @@ typing==3.7.4.1; python_version >= "3.5" and python_version < "3.7"
 typing-extensions==3.7.4.2; python_version < "3.8"
 tzlocal==1.5.1
 unicodecsv==0.14.1
-urllib3==1.25.8
+urllib3==1.26.5
 wcwidth==0.1.9
 werkzeug==0.16.1
 wtforms==2.2.1
