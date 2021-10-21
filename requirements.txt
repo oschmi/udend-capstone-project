@@ -4,7 +4,7 @@ apispec==1.3.3; python_version >= "3.6"
 argcomplete==1.11.1
 atomicwrites==1.3.0; sys_platform == "win32"
 attrs==19.3.0
-babel==2.8.0; python_version >= "3.6"
+babel==2.9.1; python_version >= "3.6"
 boto3==1.12.35
 botocore==1.15.35
 cached-property==1.5.1
