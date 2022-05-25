@@ -61,7 +61,7 @@ psycopg2==2.8.4
 py==1.8.1
 py4j==0.10.7
 pygments==2.6.1
-pyjwt==1.7.1; python_version >= "3.6"
+pyjwt==2.4.0; python_version >= "3.6"
 pyparsing==2.4.6
 pyrsistent==0.16.0
 pyspark==2.4.5
