@@ -50,7 +50,7 @@ marshmallow==2.21.0; python_version >= "3.6"
 marshmallow-enum==1.5.1; python_version >= "3.6"
 marshmallow-sqlalchemy==0.22.3; python_version >= "3.6"
 more-itertools==8.2.0
-numpy==1.18.2
+numpy==1.22.0
 packaging==20.3
 pandas==0.25.3
 pendulum==1.4.4
